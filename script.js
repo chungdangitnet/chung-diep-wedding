@@ -15,8 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ================= 1. ÂM THANH (SOUND EFFECT & NHẠC NỀN) =================
   let isMusicPlaying = false;
 
-  // Hiệu ứng âm thanh khi bấm "Mở thiệp"
-  // Ưu tiên phát file <audio id="openCardSfx"> nếu có trong HTML, nếu không sẽ tự tạo tiếng chuông lấp lánh
   function playOpenCardSoundEffect() {
     if (openCardSfx && openCardSfx.getAttribute("src")) {
       openCardSfx.currentTime = 0;
@@ -28,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       const ctx = new AudioCtx();
-      const notes = [1046.5, 1318.5, 1568.0, 1975.5, 2349.3]; // Hợp âm chuông gió lấp lánh
+      const notes = [1046.5, 1318.5, 1568.0, 1975.5, 2349.3];
 
       notes.forEach((freq, index) => {
         const osc = ctx.createOscillator();
@@ -53,9 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
         osc.start(ctx.currentTime + index * 0.06);
         osc.stop(ctx.currentTime + index * 0.06 + 0.85);
       });
-    } catch (e) {
-      // Bỏ qua nếu trình duyệt không hỗ trợ Web Audio API
-    }
+    } catch (e) {}
   }
 
   function updateMusicUI(playing) {
@@ -75,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function playWeddingMusic() {
     if (!bgMusic || isMusicPlaying) return;
-    bgMusic.volume = 0.7; // Âm lượng nhạc nền 70%
+    bgMusic.volume = 0.7;
     bgMusic
       .play()
       .then(() => updateMusicUI(true))
@@ -94,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Tự động tạm dừng/phát lại nhạc khi chuyển tab hoặc khóa màn hình
   document.addEventListener("visibilitychange", () => {
     if (!bgMusic) return;
     if (document.hidden && isMusicPlaying) {
@@ -105,8 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ================= 2. HIỆU ỨNG CHỮ HỶ BAY LÊN Ở MÀN HÌNH BÌA =================
+  let hyInterval = null;
+
   function createFloatingHy() {
-    if (!floatingContainer) return;
+    if (!floatingContainer || document.hidden) return;
 
     const hyImg = document.createElement("img");
     hyImg.src = "images/chu-hy.webp";
@@ -126,28 +123,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }, duration * 1000);
   }
 
-  for (let i = 0; i < 6; i++) {
-    setTimeout(createFloatingHy, i * 600);
+  if (floatingContainer) {
+    for (let i = 0; i < 6; i++) {
+      setTimeout(createFloatingHy, i * 600);
+    }
+    hyInterval = setInterval(createFloatingHy, 1200);
   }
-  const hyInterval = setInterval(createFloatingHy, 1200);
 
   // ================= 3. PHÁO BÔNG CHỮ HỶ BUNG NỞ =================
-  function launchHyFireworks(originX, originY, particleCount = 42) {
+  function launchHyFireworks(originX, originY, particleCount = 36) {
     const colors = ["#d62828", "#c3a370", "#e6b800", "#b5171e", "#f4d35e"];
+    const fragment = document.createDocumentFragment();
+    const particles = [];
 
     for (let i = 0; i < particleCount; i++) {
       const el = document.createElement("span");
       el.className = "hy-firework-particle";
       el.textContent = "囍";
 
-      const size = Math.floor(Math.random() * 15) + 16;
+      const size = Math.floor(Math.random() * 14) + 16;
       el.style.fontSize = `${size}px`;
       el.style.color = colors[Math.floor(Math.random() * colors.length)];
       el.style.left = `${originX}px`;
       el.style.top = `${originY}px`;
 
-      document.body.appendChild(el);
+      fragment.appendChild(el);
+      particles.push(el);
+    }
 
+    // Thêm toàn bộ 1 lần vào DOM thay vì thêm lẻ từng hạt giúp giảm lag khung hình đầu
+    document.body.appendChild(fragment);
+
+    particles.forEach((el, i) => {
       const angle =
         (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.35;
       const velocity = 90 + Math.random() * 170;
@@ -184,10 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       animation.onfinish = () => el.remove();
-    }
+    });
   }
 
-  // Cho phép bấm vào chữ Hỷ ở đầu trang chính để bắn lại pháo bông bất cứ lúc nào
   const heroHyIcon = document.querySelector(".hero-hy-center");
   if (heroHyIcon) {
     heroHyIcon.style.cursor = "pointer";
@@ -197,31 +203,35 @@ document.addEventListener("DOMContentLoaded", () => {
       launchHyFireworks(
         rect.left + rect.width / 2,
         rect.top + rect.height / 2,
-        36,
+        32,
       );
     });
   }
 
-  // ================= 4. TỰ ĐỘNG CUỘN MƯỢT TRANG CHÍNH =================
+  // ================= 4. TỰ ĐỘNG CUỘN MƯỢT TRANG CHÍNH (TỐI ƯU GPU) =================
   let isAutoScrolling = false;
   let autoScrollFrame = null;
   let lastTimestamp = null;
-  let currentScrollPos = 0;
+  let exactScrollY = 0;
+  let cachedMaxScroll = 0;
   const AUTO_SCROLL_SPEED = 55; // Tốc độ cuộn (pixel/giây)
+
+  function updateMaxScroll() {
+    cachedMaxScroll =
+      document.documentElement.scrollHeight - window.innerHeight;
+  }
 
   function stepAutoScroll(timestamp) {
     if (!isAutoScrolling) return;
 
     if (!lastTimestamp) lastTimestamp = timestamp;
-    const deltaSeconds = (timestamp - lastTimestamp) / 1000;
+    const deltaSeconds = Math.min((timestamp - lastTimestamp) / 1000, 0.05); // Chống nhảy cóc khi rớt frame
     lastTimestamp = timestamp;
 
-    currentScrollPos += AUTO_SCROLL_SPEED * deltaSeconds;
-    window.scrollTo({ top: currentScrollPos, behavior: "instant" });
+    exactScrollY += AUTO_SCROLL_SPEED * deltaSeconds;
+    window.scrollTo(0, Math.round(exactScrollY));
 
-    const maxScroll =
-      document.documentElement.scrollHeight - window.innerHeight;
-    if (currentScrollPos >= maxScroll - 2) {
+    if (exactScrollY >= cachedMaxScroll - 2) {
       stopAutoScroll();
       return;
     }
@@ -231,13 +241,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startAutoScroll() {
     if (isAutoScrolling) return;
+    updateMaxScroll();
     isAutoScrolling = true;
     lastTimestamp = null;
-    currentScrollPos = window.scrollY;
+    exactScrollY = window.scrollY;
     autoScrollFrame = requestAnimationFrame(stepAutoScroll);
   }
 
   function stopAutoScroll() {
+    if (!isAutoScrolling) return;
     isAutoScrolling = false;
     if (autoScrollFrame) {
       cancelAnimationFrame(autoScrollFrame);
@@ -245,25 +257,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Dừng tự cuộn ngay khi khách chạm tay hoặc lăn chuột để tự xem
-  ["wheel", "touchstart", "keydown"].forEach((evt) => {
+  // Dừng tự cuộn ngay lập tức khi người dùng chạm tay, cuộn chuột hoặc bấm phím
+  ["wheel", "touchstart", "pointerdown", "keydown"].forEach((evt) => {
     window.addEventListener(evt, stopAutoScroll, { passive: true });
   });
+
+  window.addEventListener("resize", updateMaxScroll, { passive: true });
 
   // ================= 5. SỰ KIỆN CLICK NÚT "MỞ THIỆP" =================
   if (openBtn) {
     openBtn.addEventListener("click", () => {
-      clearInterval(hyInterval);
+      if (hyInterval) clearInterval(hyInterval);
 
-      // 1. Phát ngay hiệu ứng âm thanh mở thiệp
       playOpenCardSoundEffect();
 
-      // 2. Phát nhạc nền (lùi nhẹ 250ms để tiếng hiệu ứng mở thiệp nổi bật rõ ràng)
       setTimeout(() => {
         playWeddingMusic();
       }, 250);
 
-      // 3. Kích hoạt hiệu ứng chuyển cảnh
       if (hyTransition) {
         hyTransition.classList.add("active");
       }
@@ -271,26 +282,26 @@ document.addEventListener("DOMContentLoaded", () => {
         introScreen.classList.add("fade-out");
       }
 
-      // 4. Mở trang chính, bắn pháo bông chữ Hỷ và bắt đầu tự cuộn
       setTimeout(() => {
-        if (introScreen) introScreen.style.display = "none";
+        if (introScreen) {
+          introScreen.remove(); // Xóa hẳn màn hình chờ khỏi DOM để giải phóng bộ nhớ
+        }
         if (mainContent) mainContent.classList.remove("hidden");
         window.scrollTo(0, 0);
+        updateMaxScroll();
 
-        launchHyFireworks(window.innerWidth / 2, window.innerHeight / 2, 45);
+        launchHyFireworks(window.innerWidth / 2, window.innerHeight / 2, 38);
 
         setTimeout(() => {
           startAutoScroll();
-        }, 650);
+        }, 700);
       }, 450);
 
-      // 5. Tắt lớp phủ chuyển cảnh
       setTimeout(() => {
         if (hyTransition) {
-          hyTransition.classList.remove("active");
-          hyTransition.style.display = "none";
+          hyTransition.remove(); // Xóa hẳn lớp phủ chuyển cảnh sau khi xong
         }
-      }, 1100);
+      }, 1150);
     });
   }
 
@@ -344,13 +355,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadGuestNameById();
+
   // ================= XỬ LÝ NÚT XÁC NHẬN THAM DỰ (GỬI VỀ GOOGLE SHEET) =================
   const RSVP_WEB_APP_URL =
     "https://script.google.com/macros/s/AKfycbxt4nbbIbfmvNoEX5TObCUbPY18KR09ngWkSqHVbLwTUWi5mxosBq0vzxr_fFWUkZhDNA/exec";
   const rsvpBtn = document.getElementById("open-rsvp-btn");
 
   if (rsvpBtn) {
-    // Kiểm tra nếu khách này đã bấm xác nhận trước đó trên trình duyệt
     if (
       guestId &&
       localStorage.getItem(`rsvp_confirmed_${guestId}`) === "true"
@@ -359,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
       rsvpBtn.classList.add("is-confirmed");
     }
 
-    rsvpBtn.addEventListener("click", async (e) => {
+    rsvpBtn.addEventListener("click", async () => {
       if (!guestId) {
         alert(
           "Link thiệp chưa có mã khách mời (?id=...). Vui lòng mở đúng link thiệp được gửi riêng cho bạn!",
@@ -370,7 +381,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (rsvpBtn.disabled || rsvpBtn.classList.contains("is-confirmed"))
         return;
 
-      // Hiệu ứng đang gửi
       const originalText = rsvpBtn.textContent;
       rsvpBtn.disabled = true;
       rsvpBtn.textContent = "ĐANG GỬI XÁC NHẬN...";
@@ -391,9 +401,8 @@ document.addEventListener("DOMContentLoaded", () => {
           rsvpBtn.classList.add("is-confirmed");
           localStorage.setItem(`rsvp_confirmed_${guestId}`, "true");
 
-          // Bắn pháo bông chữ Hỷ chúc mừng ngay tại nút
           const rect = rsvpBtn.getBoundingClientRect();
-          launchHyFireworks(rect.left + rect.width / 2, rect.top, 30);
+          launchHyFireworks(rect.left + rect.width / 2, rect.top, 28);
         } else {
           throw new Error(result.message || "Lỗi xác nhận");
         }
@@ -413,8 +422,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (calendarBtn) {
     const eventInfo = {
       title: "Tiệc Cưới Ngọc Chung & Kiều Diệp",
-      startDate: "20270503T033000Z", // 10:30 sáng ngày 03/05/2027 (giờ VN = UTC + 7)
-      endDate: "20270503T060000Z", // 13:00 chiều ngày 03/05/2027
+      startDate: "20270503T033000Z",
+      endDate: "20270503T060000Z",
       location: "Trường Tiểu Học Hòa Tân, Thôn 5, Dang Kang, Đắk Lắk",
       details: "Sự hiện diện của bạn là niềm vinh hạnh của gia đình chúng tôi!",
     };
@@ -430,7 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
     calendarBtn.href = `https://calendar.google.com/calendar/render?${params.toString()}`;
   }
 
-  // ================= 8. ALBUM ẢNH CƯỚI 3D COVERFLOW =================
+  // ================= 8. ALBUM ẢNH CƯỚI 3D COVERFLOW (CHỈ CHẠY KHI TRONG MÀN HÌNH) =================
   const slides = Array.from(
     document.querySelectorAll("#album-track .album-slide"),
   );
@@ -442,6 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (slides.length) {
     let currentIndex = Math.floor(slides.length / 2);
     let autoplayTimer = null;
+    let isCarouselVisible = false;
     const AUTOPLAY_DELAY = 3000;
 
     slides.forEach((_, idx) => {
@@ -469,7 +479,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (offset === 0) {
           slide.style.transform =
-            "translateX(0px) translateZ(50px) scale(1) rotateY(0deg)";
+            "translate3d(0px, 0px, 50px) scale(1) rotateY(0deg)";
           slide.style.zIndex = 20;
           slide.style.opacity = "1";
           slide.style.filter = "brightness(1)";
@@ -480,13 +490,12 @@ document.addEventListener("DOMContentLoaded", () => {
           const scale = Math.max(0.65, 1 - absOffset * 0.11);
           const rotateY = -sign * 22;
 
-          slide.style.transform = `translateX(${translateX}px) translateZ(${translateZ}px) scale(${scale}) rotateY(${rotateY}deg)`;
+          slide.style.transform = `translate3d(${translateX}px, 0px, ${translateZ}px) scale(${scale}) rotateY(${rotateY}deg)`;
           slide.style.zIndex = 10 - absOffset;
           slide.style.opacity = absOffset === 3 ? "0.65" : "0.92";
           slide.style.filter = "brightness(0.88)";
         } else {
-          slide.style.transform =
-            "translateX(0px) translateZ(-350px) scale(0.4)";
+          slide.style.transform = "translate3d(0px, 0px, -350px) scale(0.4)";
           slide.style.zIndex = 1;
           slide.style.opacity = "0";
         }
@@ -503,6 +512,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startCarouselAutoplay() {
+      if (!isCarouselVisible || document.hidden) return;
       stopCarouselAutoplay();
       autoplayTimer = setInterval(() => {
         goToSlide(currentIndex + 1);
@@ -566,65 +576,67 @@ document.addEventListener("DOMContentLoaded", () => {
       { passive: true },
     );
 
+    // Chỉ chạy xoay ảnh 3D khi khách đang lướt tới khu vực Album, cuộn qua thì tạm dừng để nhẹ máy
+    if (carouselContainer) {
+      const albumObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            isCarouselVisible = entry.isIntersecting;
+            if (isCarouselVisible) {
+              startCarouselAutoplay();
+            } else {
+              stopCarouselAutoplay();
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+      albumObserver.observe(carouselContainer);
+    }
+
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) stopCarouselAutoplay();
       else startCarouselAutoplay();
     });
 
-    window.addEventListener("resize", renderCoverflow);
+    window.addEventListener("resize", renderCoverflow, { passive: true });
     renderCoverflow();
-    startCarouselAutoplay();
   }
 
-  // ================= 9. HIỆU ỨNG NỐI ĐIỂM LỊCH TRÌNH =================
+  // ================= 9. HIỆU ỨNG NỐI ĐIỂM LỊCH TRÌNH (CHẠY 1 LẦN MƯỢT MÀ) =================
   const timelineSection = document.getElementById("schedule-section");
   const timelineItems = Array.from(
     document.querySelectorAll("#wedding-timeline .timeline-item"),
   );
 
   if (timelineSection && timelineItems.length) {
-    let animationTimers = [];
-
-    function resetTimeline() {
-      animationTimers.forEach((timerId) => clearTimeout(timerId));
-      animationTimers = [];
-
-      timelineItems.forEach((item) => {
-        item.classList.remove("is-active", "is-drawing", "is-pulse");
-      });
-    }
+    let hasPlayedTimeline = false;
 
     function playTimelineSequence() {
-      resetTimeline();
-      const stepDelay = 420;
+      if (hasPlayedTimeline) return;
+      hasPlayedTimeline = true;
+      const stepDelay = 380;
 
       timelineItems.forEach((item, index) => {
         const startTime = index * stepDelay;
 
-        const activeTimer = setTimeout(() => {
+        setTimeout(() => {
           item.classList.add("is-active", "is-pulse");
-          const pulseTimer = setTimeout(
-            () => item.classList.remove("is-pulse"),
-            380,
-          );
-          animationTimers.push(pulseTimer);
+          setTimeout(() => item.classList.remove("is-pulse"), 350);
         }, startTime);
 
-        const drawTimer = setTimeout(() => {
+        setTimeout(() => {
           item.classList.add("is-drawing");
-        }, startTime + 180);
-
-        animationTimers.push(activeTimer, drawTimer);
+        }, startTime + 160);
       });
     }
 
     const observer = new IntersectionObserver(
-      (entries) => {
+      (entries, obs) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             playTimelineSequence();
-          } else {
-            resetTimeline();
+            obs.unobserve(entry.target);
           }
         });
       },
@@ -634,20 +646,19 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(timelineSection);
   }
 
-  // ================= 10. HIỆU ỨNG XUẤT HIỆN DẦN KHI CUỘN TRANG =================
+  // ================= 10. HIỆU ỨNG XUẤT HIỆN DẦN KHI CUỘN TRANG (CHỐNG GIẬT LAG) =================
   const closingSection = document.getElementById("closing-section");
   if (closingSection) {
     const closingObserver = new IntersectionObserver(
-      (entries) => {
+      (entries, obs) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             closingSection.classList.add("is-visible");
-          } else {
-            closingSection.classList.remove("is-visible");
+            obs.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.25 },
+      { threshold: 0.2 },
     );
 
     closingObserver.observe(closingSection);
@@ -672,34 +683,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const revealElements = Array.from(
     document.querySelectorAll(revealSelectors.join(", ")),
   );
+
   if (revealElements.length) {
     revealElements.forEach((el) => {
       el.classList.add("reveal-on-scroll");
     });
 
     const revealObserver = new IntersectionObserver(
-      (entries) => {
+      (entries, obs) => {
         let batchIndex = 0;
 
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const el = entry.target;
-            el.style.transitionDelay = `${batchIndex * 100}ms`;
+            el.style.transitionDelay = `${batchIndex * 80}ms`;
             el.classList.add("is-revealed");
             batchIndex++;
 
+            // Ngừng theo dõi phần tử đã hiện để không tính toán lại khi cuộn lên/xuống
+            obs.unobserve(el);
+
             setTimeout(() => {
               el.style.transitionDelay = "0ms";
-            }, 1000);
-          } else {
-            entry.target.style.transitionDelay = "0ms";
-            entry.target.classList.remove("is-revealed");
+              el.style.willChange = "auto";
+            }, 900);
           }
         });
       },
       {
-        threshold: 0.12,
-        rootMargin: "0px 0px -30px 0px",
+        threshold: 0.08,
+        rootMargin: "0px 0px -20px 0px",
       },
     );
 

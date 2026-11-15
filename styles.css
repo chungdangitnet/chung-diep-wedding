@@ -22,7 +22,14 @@ html, body {
     width: 100%;
     font-family: var(--font-text);
     color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
 }
+
+/* Ẩn hoàn toàn màn hình chính trước khi bấm Mở thiệp để tránh tải/dựng hình ngầm gây lag */
+.hidden {
+    display: none !important;
+}
+
 /* ================= SECTION: INTRO SCREEN ================= */
 #intro-screen {
     position: fixed;
@@ -43,7 +50,7 @@ html, body {
 #floating-hy-container {
     position: absolute;
     inset: 0;
-    pointer-events: none; /* Để không cản trở click nút Mở thiệp */
+    pointer-events: none;
     z-index: 1;
 }
 
@@ -51,13 +58,14 @@ html, body {
     position: absolute;
     bottom: -50px;
     opacity: 0;
-    filter: brightness(0) invert(1); /* Đổi ảnh sang màu trắng mờ */
+    filter: brightness(0) invert(1);
     animation: floatUp linear infinite;
+    will-change: transform, opacity;
 }
 
 @keyframes floatUp {
     0% {
-        transform: translateY(0) scale(0.8);
+        transform: translate3d(0, 0, 0) scale(0.8);
         opacity: 0;
     }
     20% {
@@ -67,12 +75,12 @@ html, body {
         opacity: 0.18;
     }
     100% {
-        transform: translateY(-105vh) scale(1.1);
+        transform: translate3d(0, -105vh, 0) scale(1.1);
         opacity: 0;
     }
 }
 
-/* Thẻ thiệp chính giữa (Tỷ lệ giống mẫu) */
+/* Thẻ thiệp chính giữa */
 .intro-card {
     position: relative;
     z-index: 2;
@@ -89,14 +97,14 @@ html, body {
     text-align: center;
     color: #f4f1ea;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-    overflow: hidden; /* Cắt phần chữ Hỷ chìm tràn ra ngoài thẻ */
+    overflow: hidden;
 }
 
 /* Chữ Hỷ chìm trang trí 2 góc bên trong thẻ */
 .card-deco {
     position: absolute;
-    width: 245px; /* Tăng kích thước lên cho cân đối với khung đỏ */
-    opacity: 0.12; /* Tăng nhẹ độ rõ một chút cho giống mẫu */
+    width: 245px;
+    opacity: 0.12;
     filter: brightness(0) invert(1);
     pointer-events: none;
     user-select: none;
@@ -105,7 +113,7 @@ html, body {
 .deco-top-left {
     top: -45px;
     left: -55px;
-    transform: rotate(30deg); /* Xoay nghiêng cùng chiều với mẫu */
+    transform: rotate(30deg);
 }
 
 .deco-bottom-right {
@@ -130,10 +138,9 @@ html, body {
     justify-content: center;
     align-items: center;
     margin: 0 auto 22px;
-    /* Gọi animation sáng lên - tối xuống lặp vô tận */
     animation: hyGlow 2.5s ease-in-out infinite;
 }
-/* Định nghĩa chuyển động sáng lên - tối xuống */
+
 @keyframes hyGlow {
     0%, 100% {
         transform: scale(1);
@@ -141,9 +148,8 @@ html, body {
         box-shadow: 0 0 8px rgba(244, 241, 234, 0.2);
     }
     50% {
-        transform: scale(1.06); /* Phóng to cực nhẹ tạo cảm giác có nhịp đập */
+        transform: scale(1.06);
         opacity: 1;
-        /* Tỏa quầng sáng trắng kem ra xung quanh */
         box-shadow: 0 0 22px rgba(244, 241, 234, 0.85), 
                     0 0 35px rgba(244, 241, 234, 0.4);
     }
@@ -153,7 +159,6 @@ html, body {
     width: 32px;
     height: 32px;
     object-fit: contain;
-    /* Bộ lọc CSS biến bất kỳ màu nào thành màu xanh lục đậm (#23412d) */
     filter: brightness(0) saturate(100%) invert(18%) sepia(24%) saturate(835%) hue-rotate(92deg) brightness(95%) contrast(91%);
 }
 
@@ -161,7 +166,7 @@ html, body {
     font-family: "Pinyon Script", cursive;
     font-size: 42px;
     font-weight: 400;
-    line-height: 1.15; /* Thu gọn khoảng cách dòng cho sát dấu & */
+    line-height: 1.15;
     letter-spacing: 0.3px;
     color: #f4f1ea;
 }
@@ -170,10 +175,10 @@ html, body {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 16px;
     display: block;
-    margin: 4px 0; /* Khoảng cách trên dưới của dấu & */
+    margin: 4px 0;
     opacity: 0.9;
 }
-/* ================= MÀN HÌNH LỚN TỪ IPAD / PC TRỞ LÊN ================= */
+
 @media (min-width: 768px) {
     .intro-card h1 {
         font-size: 48px;
@@ -192,7 +197,7 @@ html, body {
     align-items: center;
     justify-content: center;
     margin: 14px auto;
-    width: 140px; /* Độ rộng chuẩn cho điện thoại */
+    width: 140px;
     color: rgba(244, 241, 234, 0.85);
     font-size: 14px;
 }
@@ -201,21 +206,18 @@ html, body {
 .divider::after {
     content: "";
     flex: 1;
-    height: 1.5px; /* Tăng độ dày nét gạch lên 1.5px cho rõ hơn */
+    height: 1.5px;
     margin: 0 10px;
 }
 
-/* Gạch bên trái: mờ ở đầu ngoài, sáng rõ dần vào tâm */
 .divider::before {
     background: linear-gradient(to right, transparent, rgba(244, 241, 234, 0.9));
 }
 
-/* Gạch bên phải: sáng rõ ở tâm, mờ dần ra đầu ngoài */
 .divider::after {
     background: linear-gradient(to left, transparent, rgba(244, 241, 234, 0.9));
 }
 
-/* Mở rộng độ dài gạch khi xem trên iPad / PC */
 @media (min-width: 768px) {
     .divider {
         width: 175px;
@@ -239,7 +241,7 @@ html, body {
 }
 
 #open-card-btn {
-   background-color: #f4f1ea;
+    background-color: #f4f1ea;
     color: #1b3325;
     border: none;
     padding: 11px 36px;
@@ -256,12 +258,14 @@ html, body {
     background-color: #ffffff;
     transform: translateY(-2px);
 }
+
 #guest-name {
     font-weight: 600;
     color: #ffffff;
     display: inline-block;
     margin-top: 4px;
 }
+
 /* ================= HIỆU ỨNG CHỮ HỶ PHÓNG TO KHI MỞ THIỆP ================= */
 #hy-transition-overlay {
     position: fixed;
@@ -270,7 +274,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000; /* Nằm trên cả intro-screen */
+    z-index: 10000;
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
@@ -282,7 +286,6 @@ html, body {
     visibility: visible;
 }
 
-/* Kích thước mặc định cho điện thoại */
 #hy-transition-overlay img {
     width: 110px;
     height: 110px;
@@ -292,9 +295,9 @@ html, body {
     opacity: 0;
 }
 
-/* Kích hoạt animation phóng từ trong ra ngoài */
 #hy-transition-overlay.active img {
     animation: hyExpandOut 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    will-change: transform, opacity;
 }
 
 @keyframes hyExpandOut {
@@ -306,12 +309,11 @@ html, body {
         opacity: 0.9;
     }
     100% {
-        transform: scale(5.5); /* Phóng lớn tràn màn hình */
-        opacity: 0; /* Mờ dần khi bung hết cỡ để lộ thiệp bên dưới */
+        transform: scale(5.5);
+        opacity: 0;
     }
 }
 
-/* Responsive cho màn hình lớn từ iPad / PC trở lên */
 @media (min-width: 768px) {
     #hy-transition-overlay img {
         width: 150px;
@@ -321,7 +323,7 @@ html, body {
 
 /* ================= KHUNG TỔNG NỘI DUNG CHÍNH ================= */
 #main-content {
-    background-color: #ffffff; /* Màu nền dịu bao quanh khung thiệp trên PC */
+    background-color: #ffffff;
     min-height: 100vh;
 }
 
@@ -330,15 +332,12 @@ html, body {
     max-width: 900px;
     margin: 0 auto;
     background-color: #fff7eb;
-    
-    /* Đường viền mảnh phân cách rõ ràng giữa nền trắng và nền kem */
     border-left: 1px solid #e6dfd3;
     border-right: 1px solid #e6dfd3;
-    
-    /* Bóng đổ tỏa nhẹ sang 2 bên tạo chiều sâu như tờ thiệp giấy đặt trên mặt bàn */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-    
+    /* Dùng clip thay cho hidden để không tạo vùng cuộn lồng nhau gây khựng trên di động */
     overflow-x: hidden;
+    overflow-x: clip;
     position: relative;
 }
 
@@ -351,7 +350,6 @@ html, body {
     text-align: center;
 }
 
-/* Elip đứng có tâm nằm ngay mép trên (y = 0) để thu gọn vào trong ngay từ đỉnh */
 .hero-top-arch {
     position: absolute;
     top: 0;
@@ -458,7 +456,7 @@ html, body {
     object-fit: cover;
     object-position: center top;
 }
-/* ================= RESPONSIVE MÀN HÌNH LỚN (MIN-WIDTH: 768PX) ================= */
+
 @media (min-width: 768px) {
     .invitation-wrapper {
         max-width: 900px;
@@ -468,7 +466,6 @@ html, body {
         padding-top: 56px;
     }
 
-    /* Tọa độ đáy vòm = 816 - 408 = 408px -> cắt ngang đúng dưới 2 ngôi sao như mẫu */
     .hero-top-arch {
         top: -408px;
         width: 872px;
@@ -485,7 +482,7 @@ html, body {
     .hero-couple-row {
         max-width: 720px;
         padding: 0;
-        margin-bottom: 42px; /* Khoảng cách chuẩn từ chữ Hỷ tới vòng chữ LOVE NEVER FAILS */
+        margin-bottom: 42px;
     }
 
     .couple-col .role {
@@ -503,7 +500,6 @@ html, body {
         height: 92px;
     }
 
-    /* Kích thước chuẩn 372 × 626px, đỉnh ảnh nằm ở y = 264px */
     .hero-arch-frame {
         width: 372px;
         padding-top: 44px;
@@ -524,6 +520,7 @@ html, body {
         height: 626px;
     }
 }
+
 /* ================= SECTION 2: THÔNG TIN LỄ CƯỚI (MOBILE-FIRST) ================= */
 .wedding-info-section {
     padding-top: 28px;
@@ -532,7 +529,6 @@ html, body {
     color: #14291b;
 }
 
-/* Thanh tiêu đề ngang full khung */
 .section-banner-header {
     width: 100%;
     background-color: #14291b;
@@ -555,7 +551,6 @@ html, body {
     padding: 0 12px;
 }
 
-/* Bố cục 2 cột gia đình hai bên */
 .parents-grid {
     display: flex;
     align-items: stretch;
@@ -571,12 +566,14 @@ html, body {
     flex-direction: column;
     justify-content: space-between;
 }
+
 .parent-names-box {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
+
 .family-side-label {
     display: block;
     font-family: 'Montserrat', sans-serif;
@@ -599,17 +596,15 @@ html, body {
 
 .parent-name {
     font-family: 'Playfair Display', Georgia, serif;
-    /* Tự co giãn từ 11px (màn nhỏ 360px) lên 13.5px (màn lớn) để tên 1 người luôn nằm trên 1 dòng */
     font-size: clamp(11px, 3.2vw, 13.5px);
     font-weight: 700;
     line-height: 1.5;
     margin: 0;
-    white-space: nowrap; /* Ép mỗi tên nằm gọn 1 hàng, không ngắt chữ */
+    white-space: nowrap;
 }
 
 .parent-address {
     font-family: 'Lora', Georgia, serif;
-    /* Co giãn mượt theo chiều rộng màn hình để vừa khít câu dài nhất trên 1 hàng */
     font-size: clamp(8.5px, 2.4vw, 11px);
     line-height: 1.45;
     margin: 6px 0 0;
@@ -617,9 +612,8 @@ html, body {
     white-space: nowrap;
 }
 
-/* Đường kẻ dọc ngăn cách 2 họ */
 .parents-divider {
-   width: 1px;
+    width: 1px;
     background-color: #14291b;
     opacity: 0.65;
     align-self: stretch;
@@ -627,7 +621,6 @@ html, body {
     flex-shrink: 0;
 }
 
-/* Lời báo tin */
 .announcement-text {
     font-family: "Be Vietnam Pro", sans-serif;
     font-size: clamp(9px, 2.65vw, 11px);
@@ -641,7 +634,6 @@ html, body {
     white-space: nowrap;
 }
 
-/* Tên đầy đủ Cô dâu & Chú rể */
 .couple-full-names {
     margin-bottom: 34px;
 }
@@ -674,7 +666,7 @@ html, body {
 .ceremony-details,
 .ceremony-details p,
 .ceremony-details span {
-       font-family: "Be Vietnam Pro", sans-serif;
+    font-family: "Be Vietnam Pro", sans-serif;
 }
 
 .ceremony-place-intro {
@@ -699,7 +691,6 @@ html, body {
     opacity: 0.9;
 }
 
-/* Hàng Thứ | Ngày | Tháng */
 .ceremony-date-row {
     display: flex;
     align-items: center;
@@ -712,7 +703,7 @@ html, body {
     font-family: 'Lora', Georgia, serif;
     font-size: clamp(10.5px, 3vw, 12px);
     letter-spacing: 0.8px;
-    min-width: auto; /* Bỏ chiều rộng cứng 72px để tránh chèn ép trên màn nhỏ */
+    min-width: auto;
     white-space: nowrap;
 }
 
@@ -746,7 +737,6 @@ html, body {
     white-space: nowrap;
 }
 
-/* ================= RESPONSIVE MÀN HÌNH LỚN (MIN-WIDTH: 768PX) ================= */
 @media (min-width: 768px) {
     .wedding-info-section {
         padding-top: 40px;
@@ -768,6 +758,7 @@ html, body {
         gap: 32px;
         margin-bottom: 44px;
     }
+
     .family-side-label {
         font-size: 12px;
         letter-spacing: 2.2px;
@@ -892,10 +883,12 @@ html, body {
     inset: 0;
     border-radius: 2px;
     overflow: hidden;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s ease, z-index 0s;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s ease;
     cursor: pointer;
     background-color: #dcd6c8;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .album-slide img {
@@ -905,7 +898,6 @@ html, body {
     display: block;
 }
 
-/* Nút tròn mũi tên trái/phải nằm đè lên mép ảnh giữa */
 .album-nav {
     position: absolute;
     top: 50%;
@@ -938,7 +930,6 @@ html, body {
     right: calc(50% - 118px);
 }
 
-/* Chấm tròn điều hướng bên dưới */
 .album-dots {
     display: flex;
     align-items: center;
@@ -1012,7 +1003,7 @@ html, body {
     margin: 0;
 }
 
-/* Khung Lịch Tháng 7 / 2026 */
+/* Khung Lịch Tháng 05 / 2027 */
 .calendar-card {
     max-width: 280px;
     margin: 0 auto 18px;
@@ -1059,7 +1050,6 @@ html, body {
     height: 24px;
 }
 
-/* Trái tim màu xanh đậm bao quanh ngày 30 */
 .wedding-day-heart {
     position: relative;
     color: #f5efe6;
@@ -1124,7 +1114,7 @@ html, body {
 }
 
 .venue-address-text {
-   font-family: "Be Vietnam Pro", sans-serif;
+    font-family: "Be Vietnam Pro", sans-serif;
     font-size: 11px;
     line-height: 1.5;
     margin: 0 auto 18px;
@@ -1167,9 +1157,7 @@ html, body {
     text-underline-offset: 3px;
 }
 
-/* ================= RESPONSIVE MÀN HÌNH LỚN (MIN-WIDTH: 768PX) ================= */
 @media (min-width: 768px) {
-    /* Album 3D lớn hơn trên khung 900px */
     .album-section {
         padding-bottom: 52px;
     }
@@ -1198,7 +1186,6 @@ html, body {
         right: calc(50% - 156px);
     }
 
-    /* Section Tiệc cưới & Lịch */
     .reception-section {
         padding-bottom: 56px;
     }
@@ -1269,7 +1256,6 @@ html, body {
         font-size: 12px;
     }
 
-    /* Section Bản đồ */
     .location-section {
         padding-bottom: 64px;
     }
@@ -1289,6 +1275,7 @@ html, body {
         font-size: 12.5px;
     }
 }
+
 /* ================= SECTION 6: LỊCH TRÌNH NGÀY CƯỚI (MOBILE-FIRST) ================= */
 .schedule-section {
     padding: 36px 16px 52px;
@@ -1311,17 +1298,15 @@ html, body {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 34px; /* Khoảng cách dọc giữa các mốc */
+    gap: 34px;
 }
 
-/* Lưới 3 cột giữ chấm tròn luôn nằm đúng tâm giữa */
 .timeline-item {
     display: grid;
     grid-template-columns: 1fr 36px 1fr;
     align-items: center;
 }
 
-/* Cột trái: Icon + Giờ */
 .timeline-left {
     display: flex;
     align-items: center;
@@ -1329,7 +1314,7 @@ html, body {
     gap: 8px;
     padding-right: 12px;
     opacity: 0;
-    transform: translateX(-12px);
+    transform: translate3d(-12px, 0, 0);
     transition: opacity 0.45s ease, transform 0.45s ease;
 }
 
@@ -1360,7 +1345,6 @@ html, body {
     color: #14291b;
 }
 
-/* Cột giữa: Chấm tròn & Đường nối dọc */
 .timeline-center {
     position: relative;
     display: flex;
@@ -1381,13 +1365,11 @@ html, body {
     transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
 }
 
-/* Đường thẳng nối từ tâm chấm tròn hiện tại xuống tâm chấm tròn kế tiếp */
 .timeline-line {
     position: absolute;
     top: 50%;
     left: 50%;
     width: 1.2px;
-    /* Chiều cao bằng chiều cao hàng + gap (34px) để chạm đúng tâm chấm dưới */
     height: calc(100% + 34px);
     background-color: rgba(20, 41, 27, 0.45);
     transform: translateX(-50%) scaleY(0);
@@ -1396,7 +1378,6 @@ html, body {
     z-index: 1;
 }
 
-/* Cột phải: Tên hoạt động */
 .timeline-right {
     display: flex;
     align-items: center;
@@ -1404,19 +1385,18 @@ html, body {
     padding-left: 12px;
     text-align: left;
     opacity: 0;
-    transform: translateX(12px);
+    transform: translate3d(12px, 0, 0);
     transition: opacity 0.45s ease, transform 0.45s ease;
 }
 
 .timeline-activity {
-   font-family: "Be Vietnam Pro", sans-serif;
+    font-family: "Be Vietnam Pro", sans-serif;
     font-size: 13px;
     line-height: 1.4;
     color: #14291b;
     opacity: 0.9;
 }
 
-/* ================= TRẠNG THÁI KÍCH HOẠT HIỆU ỨNG NỐI ĐIỂM ================= */
 .timeline-item.is-active .timeline-dot {
     transform: scale(1);
 }
@@ -1424,20 +1404,17 @@ html, body {
 .timeline-item.is-active .timeline-left,
 .timeline-item.is-active .timeline-right {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
 }
 
-/* Đường nối chỉ vẽ xuống sau khi chấm tròn đã hiện */
 .timeline-item.is-drawing .timeline-line {
     transform: translateX(-50%) scaleY(1);
 }
 
-/* Hiệu ứng gợn nhẹ tại chấm tròn vừa được nối tới */
 .timeline-item.is-pulse .timeline-dot {
     box-shadow: 0 0 0 7px rgba(20, 41, 27, 0.22);
 }
 
-/* ================= RESPONSIVE MÀN HÌNH LỚN (MIN-WIDTH: 768PX) ================= */
 @media (min-width: 768px) {
     .schedule-section {
         padding: 52px 24px 72px;
@@ -1479,7 +1456,7 @@ html, body {
     }
 
     .timeline-line {
-        height: calc(100% + 44px); /* Khớp với gap: 44px trên desktop */
+        height: calc(100% + 44px);
     }
 
     .timeline-right {
@@ -1490,15 +1467,15 @@ html, body {
         font-size: 16px;
     }
 }
+
 /* ================= SECTION 7: LỜI ĐÓN TIẾP CUỐI TRANG (MOBILE-FIRST) ================= */
 .closing-section {
-    background-color: transparent; /* Giữ nguyên nền kem #f5efe6 của trang */
+    background-color: transparent;
     color: #14291b;
     text-align: center;
     padding: 36px 16px 56px;
 }
 
-/* Họa tiết đường kẻ mảnh đối xứng phía trên */
 .closing-ornament {
     display: flex;
     align-items: center;
@@ -1520,7 +1497,6 @@ html, body {
     color: #14291b;
 }
 
-/* ================= CHỮ KÝ BAY TỪ HAI PHÍA VÀO (DẤU & ĐỨNG YÊN) ================= */
 .closing-signature {
     display: inline-flex;
     align-items: center;
@@ -1532,40 +1508,35 @@ html, body {
     line-height: 1.2;
     color: #14291b;
     margin-top: 6px;
-    overflow: hidden; /* Tránh tạo thanh cuộn ngang trên điện thoại khi chữ bay từ ngoài vào */
+    overflow: hidden;
     padding: 4px 16px;
 }
 
-/* Chữ bên trái (Chung) lùi sẵn sang trái 45px và ẩn mờ */
 .sig-left {
     display: inline-block;
     opacity: 0;
-    transform: translateX(-45px);
+    transform: translate3d(-45px, 0, 0);
     transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.85s ease;
 }
 
-/* Dấu & luôn đứng yên cố định tại tâm */
 .sig-amp {
     display: inline-block;
     opacity: 1;
 }
 
-/* Chữ bên phải (Diệp) lùi sẵn sang phải 45px và ẩn mờ */
 .sig-right {
     display: inline-block;
     opacity: 0;
-    transform: translateX(45px);
+    transform: translate3d(45px, 0, 0);
     transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.85s ease;
 }
 
-/* Khi cuộn tới section cuối, hai chữ lướt êm về vị trí chuẩn */
 .closing-section.is-visible .sig-left,
 .closing-section.is-visible .sig-right {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
 }
 
-/* ================= RESPONSIVE MÀN HÌNH LỚN (MIN-WIDTH: 768PX) ================= */
 @media (min-width: 768px) {
     .closing-signature {
         font-size: 62px;
@@ -1574,28 +1545,28 @@ html, body {
     }
 
     .sig-left {
-        transform: translateX(-70px);
+        transform: translate3d(-70px, 0, 0);
     }
 
     .sig-right {
-        transform: translateX(70px);
+        transform: translate3d(70px, 0, 0);
     }
 }
+
 /* ================= HIỆU ỨNG XUẤT HIỆN DẦN KHI CUỘN (SCROLL REVEAL) ================= */
+/* Bỏ will-change tĩnh để không chiếm VRAM hàng loạt trên điện thoại */
 .reveal-on-scroll {
     opacity: 0;
-    transform: translateY(26px);
-    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: opacity, transform;
+    transform: translate3d(0, 24px, 0);
+    transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .reveal-on-scroll.is-revealed {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
 }
 
-/* Giảm chuyển động nếu thiết bị người dùng bật chế độ hạn chế animation */
 @media (prefers-reduced-motion: reduce) {
     .reveal-on-scroll {
         opacity: 1;
@@ -1603,6 +1574,7 @@ html, body {
         transition: none;
     }
 }
+
 /* ================= HIỆU ỨNG PHÁO BÔNG CHỮ HỶ ================= */
 .hy-firework-particle {
     position: fixed;
@@ -1614,10 +1586,10 @@ html, body {
     font-family: "Times New Roman", "Noto Serif SC", serif;
     font-weight: 700;
     line-height: 1;
-    /* Đổ bóng nhẹ giúp chữ Hỷ nổi bật trên cả nền xanh đậm lẫn nền kem */
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
     will-change: transform, opacity;
 }
+
 /* ================= NÚT ĐIỀU KHIỂN NHẠC NỀN ================= */
 .music-toggle-btn {
     position: fixed;
@@ -1635,17 +1607,19 @@ html, body {
     justify-content: center;
     cursor: pointer;
     z-index: 9998;
+    /* Tách riêng lớp GPU để nút cố định không gây repaint toàn trang khi cuộn */
+    transform: translateZ(0);
     transition: transform 0.25s ease, background-color 0.25s ease;
 }
 
 .music-toggle-btn:hover {
-    transform: scale(1.08);
+    transform: translateZ(0) scale(1.08);
     background-color: #264633;
 }
 
-/* Hiệu ứng xoay tròn khi nhạc đang phát */
 .music-toggle-btn.playing svg {
     animation: spinMusicIcon 4s linear infinite;
+    will-change: transform;
 }
 
 @keyframes spinMusicIcon {
@@ -1661,6 +1635,7 @@ html, body {
         height: 42px;
     }
 }
+
 /* Trạng thái nút sau khi khách đã bấm xác nhận thành công */
 .btn-rsvp-primary.is-confirmed {
     background-color: #2e6f40;
