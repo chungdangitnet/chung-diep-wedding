@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thiệp Cưới | Ngọc Chung &amp; Kiều Diệp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Gộp gọn toàn bộ font chữ của thiệp để tối ưu tốc độ tải trang -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Be+Vietnam+Pro:ital,wght@0,100..900;1,100..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Great+Vibes&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..600;1,400&family=Montserrat:wght@300;400;500&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..600;1,400&family=Viaoda+Libre&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ================= HIỆU ỨNG CHUYỂN CẢNH CHỮ HỶ ================= -->
+    <div id="hy-transition-overlay">
+      <img src="images/chu-hy.webp" alt="Chữ Hỷ chuyển cảnh" />
+    </div>
+
+    <!-- ================= SECTION: MÀN HÌNH CHỜ (INTRO) ================= -->
+    <div id="intro-screen">
+      <!-- Container chứa các chữ Hỷ bay lơ lửng ở nền ngoài -->
+      <div id="floating-hy-container"></div>
+
+      <!-- Thẻ thiệp chính giữa -->
+      <div class="intro-card">
+        <!-- 2 chữ Hỷ trang trí chìm ở 2 góc trong thẻ -->
+        <img src="images/chu-hy.webp" class="card-deco deco-top-left" alt="" />
+        <img
+          src="images/chu-hy.webp"
+          class="card-deco deco-bottom-right"
+          alt=""
+        />
+
+        <div class="card-content">
+          <div class="icon-hy-circle">
+            <img src="images/chinese_happiness.webp" alt="Chữ Hỷ" />
+          </div>
+          <h1>
+            Ngọc Chung
+            <span>&amp;</span>
+            Kiều Diệp
+          </h1>
+          <div class="divider"><span>❦</span></div>
+          <p class="date">03 tháng 05, 2027</p>
+          <p class="invite-text">
+            Thân Mời: <span id="guest-name">Quý Khách</span>
+          </p>
+          <button id="open-card-btn">Mở thiệp</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hiệu ứng âm thanh (Sound Effect) khi bấm nút "Mở thiệp" -->
+    <audio id="openCardSfx" src="music/open-effect.mp3" preload="auto"></audio>
+
+    <!-- Nhạc nền đám cưới -->
+    <audio id="bgMusic" src="music/wedding.mp3" loop preload="auto"></audio>
+
+    <!-- Nút bật/tắt nhạc ở góc dưới bên phải -->
+    <button
+      id="musicToggleBtn"
+      class="music-toggle-btn"
+      title="Bật/Tắt nhạc nền"
+      aria-label="Bật hoặc tắt nhạc nền"
+    >
+      <svg
+        id="musicIconOn"
+        viewBox="0 0 24 24"
+        width="22"
+        height="22"
+        fill="currentColor"
+      >
+        <path
+          d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"
+        />
+      </svg>
+      <svg
+        id="musicIconOff"
+        viewBox="0 0 24 24"
+        width="22"
+        height="22"
+        fill="currentColor"
+        style="display: none"
+      >
+        <path
+          d="M4.27 3L3 4.27l9 9v.28c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4v-1.73L19.73 21 21 19.73 4.27 3zM14 7h4V3h-6v5.18l2 2V7z"
+        />
+      </svg>
+    </button>
+
+    <!-- ================= MÀN HÌNH CHÍNH (Được ẩn đi ban đầu) ================= -->
+    <main id="main-content" class="hidden">
+      <div class="invitation-wrapper">
+        <section class="hero-section">
+          <!-- Mảng tròn lớn màu xanh đậm phía trên -->
+          <div class="hero-top-arch"></div>
+
+          <div class="hero-content">
+            <p class="hero-subtitle">SAVE THE DATE</p>
+
+            <!-- Hàng tên chú rể - chữ Hỷ - tên cô dâu -->
+            <div class="hero-couple-row">
+              <div class="couple-col">
+                <span class="role">Trưởng Nam</span>
+                <h2 class="name">NGỌC CHUNG</h2>
+              </div>
+
+              <div class="hero-hy-center">
+                <img src="images/chu-hy.webp" alt="Chữ Hỷ" />
+              </div>
+
+              <div class="couple-col">
+                <span class="role">Út Nữ</span>
+                <h2 class="name">KIỀU DIỆP</h2>
+              </div>
+            </div>
+
+            <!-- Khung ảnh cưới hình vòm + Chữ uốn cong đồng tâm -->
+            <div class="hero-arch-frame">
+              <svg class="curved-text-svg" viewBox="0 0 460 230">
+                <defs>
+                  <path
+                    id="archCurve"
+                    d="M 32, 230 A 198, 198 0 0, 1 428, 230"
+                  />
+                </defs>
+                <text>
+                  <textPath
+                    href="#archCurve"
+                    startOffset="50%"
+                    text-anchor="middle"
+                  >
+                    ✦&#160;&#160;LOVE NEVER FAILS&#160;&#160;✦
+                  </textPath>
+                </text>
+              </svg>
+
+              <div class="arch-photo-box">
+                <img src="images/anhcuoi.jpg" alt="Ngọc Chung & Kiều Diệp" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 2: THÔNG TIN LỄ CƯỚI ================= -->
+        <section class="wedding-info-section">
+          <div class="section-banner-header">
+            <h2>THÔNG TIN LỄ CƯỚI</h2>
+          </div>
+
+          <div class="wedding-info-body">
+            <!-- Thông tin gia đình 2 bên -->
+            <div class="parents-grid">
+              <div class="parent-col">
+                <span class="family-side-label">NHÀ TRAI</span>
+                <div class="parent-names-box">
+                  <p class="parent-name">Ông Đặng Văn Năm</p>
+                  <p class="parent-name">Bà Lê Thị Phương Thảo</p>
+                </div>
+                <p class="parent-address">Thôn 5, Dang Kang, Đắk Lắk</p>
+              </div>
+
+              <div class="parents-divider"></div>
+
+              <div class="parent-col">
+                <span class="family-side-label">NHÀ GÁI</span>
+                <div class="parent-names-box">
+                  <p class="parent-name">Bà Nguyễn Thị Thành</p>
+                </div>
+                <p class="parent-address">Thôn Đức Tân, Mộ Đức, Quảng Ngãi</p>
+              </div>
+            </div>
+
+            <!-- Lời báo tin -->
+            <div class="announcement-text">
+              <p>TRÂN TRỌNG BÁO TIN</p>
+              <p>LỄ TÂN HÔN CỦA CHÚNG TÔI</p>
+            </div>
+
+            <!-- Tên đầy đủ Cô Dâu & Chú Rể -->
+            <div class="couple-full-names">
+              <h3 class="groom-fullname">Đặng Ngọc Chung</h3>
+              <span class="couple-role-label">TRƯỞNG NAM</span>
+
+              <div class="ampersand-symbol">&amp;</div>
+
+              <h3 class="bride-fullname">Nguyễn Thị Kiều Diệp</h3>
+              <span class="couple-role-label">ÚT NỮ</span>
+            </div>
+
+            <!-- Địa điểm & Thời gian cử hành hôn lễ -->
+            <div class="ceremony-details">
+              <p class="ceremony-place-intro">LỄ TÂN HÔN ĐƯỢC CỬ HÀNH TẠI</p>
+              <p class="ceremony-place-name">TƯ GIA NHÀ TRAI</p>
+              <p class="ceremony-time">VÀO LÚC 09:00</p>
+
+              <div class="ceremony-date-row">
+                <span class="date-side">THỨ HAI</span>
+                <span class="date-vline"></span>
+                <span class="date-day">03</span>
+                <span class="date-vline"></span>
+                <span class="date-side">THÁNG 05</span>
+              </div>
+
+              <p class="ceremony-year">2027</p>
+              <p class="ceremony-lunar">(TỨC NGÀY 27 THÁNG 03 NĂM ĐINH MÙI)</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 3: ALBUM ẢNH (3D COVERFLOW) ================= -->
+        <section class="album-section">
+          <div class="section-banner-header">
+            <h2>ALBUM ẢNH</h2>
+          </div>
+
+          <div class="album-carousel-container">
+            <div class="album-track" id="album-track">
+              <div class="album-slide">
+                <img src="images/anhcuoi1.jpg" alt="Ảnh cưới 1" />
+              </div>
+              <div class="album-slide">
+                <img src="images/anhcuoi2.jpg" alt="Ảnh cưới 2" />
+              </div>
+              <div class="album-slide active">
+                <img src="images/anhcuoi3.jpg" alt="Ảnh cưới 3" />
+              </div>
+              <div class="album-slide">
+                <img src="images/anhcuoi4.jpg" alt="Ảnh cưới 4" />
+              </div>
+              <div class="album-slide">
+                <img src="images/anhcuoi5.jpg" alt="Ảnh cưới 5" />
+              </div>
+              <div class="album-slide">
+                <img src="images/anhcuoi6.jpg" alt="Ảnh cưới 6" />
+              </div>
+            </div>
+
+            <button
+              class="album-nav prev"
+              id="album-prev"
+              aria-label="Ảnh trước"
+            >
+              &#8249;
+            </button>
+            <button class="album-nav next" id="album-next" aria-label="Ảnh sau">
+              &#8250;
+            </button>
+          </div>
+
+          <div class="album-dots" id="album-dots"></div>
+        </section>
+
+        <!-- ================= SECTION 4: THÔNG TIN TIỆC CƯỚI ================= -->
+        <section class="reception-section">
+          <div class="section-banner-header">
+            <h2>THÔNG TIN TIỆC CƯỚI</h2>
+          </div>
+
+          <div class="reception-body">
+            <p class="reception-intro">TIỆC CƯỚI SẼ DIỄN RA VÀO LÚC:</p>
+            <p class="reception-main-time">10:30</p>
+
+            <div class="ceremony-date-row">
+              <span class="date-side">THỨ HAI</span>
+              <span class="date-vline"></span>
+              <span class="date-day">03</span>
+              <span class="date-vline"></span>
+              <span class="date-side">THÁNG 05</span>
+            </div>
+
+            <p class="ceremony-year">2027</p>
+            <p class="ceremony-lunar">(Tức ngày 27 tháng 03 năm Đinh Mùi)</p>
+
+            <div class="party-subtime">
+              <span class="party-label">KHAI TIỆC</span>
+              <p class="party-hour">10:45</p>
+            </div>
+
+            <!-- Khung lịch Tháng 05 / 2027 có trái tim đánh dấu ngày 03 -->
+            <div class="calendar-card">
+              <div class="calendar-month-title">Tháng 05 / 2027</div>
+              <div class="calendar-weekdays">
+                <span>T2</span>
+                <span>T3</span>
+                <span>T4</span>
+                <span>T5</span>
+                <span>T6</span>
+                <span>T7</span>
+                <span>CN</span>
+              </div>
+              <div class="calendar-days">
+                <!-- Tháng 05/2027 bắt đầu vào Thứ Bảy (5 ô trống đầu tuần: T2 -> T6) -->
+                <span class="empty"></span>
+                <span class="empty"></span>
+                <span class="empty"></span>
+                <span class="empty"></span>
+                <span class="empty"></span>
+                <span>1</span>
+                <span>2</span>
+                <span
+                  class="wedding-day-heart"
+                  title="Ngày Tiệc Cưới 03/05/2027"
+                >
+                  <svg viewBox="0 0 32 30" aria-hidden="true">
+                    <path
+                      d="M16 28.5C16 28.5 2 19.6 2 9.8C2 5.1 5.6 1.5 10.1 1.5C12.8 1.5 15.1 2.9 16 4.9C16.9 2.9 19.2 1.5 21.9 1.5C26.4 1.5 30 5.1 30 9.8C30 19.6 16 28.5 16 28.5Z"
+                    />
+                  </svg>
+                  <b>3</b>
+                </span>
+                <span>4</span>
+                <span>5</span>
+                <span>6</span>
+                <span>7</span>
+                <span>8</span>
+                <span>9</span>
+                <span>10</span>
+                <span>11</span>
+                <span>12</span>
+                <span>13</span>
+                <span>14</span>
+                <span>15</span>
+                <span>16</span>
+                <span>17</span>
+                <span>18</span>
+                <span>19</span>
+                <span>20</span>
+                <span>21</span>
+                <span>22</span>
+                <span>23</span>
+                <span>24</span>
+                <span>25</span>
+                <span>26</span>
+                <span>27</span>
+                <span>28</span>
+                <span>29</span>
+                <span>30</span>
+                <span>31</span>
+              </div>
+            </div>
+
+            <!-- Link Thêm vào lịch (Google Calendar) -->
+            <a
+              id="googleCalendarBtn"
+              class="add-calendar-link"
+              href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tiệc+Cưới+Ngọc+Chung+%26+Kiều+Diệp&dates=20270503T033000Z/20270503T060000Z&location=Trường+Tiểu+Học+Hòa+Tân,+Thôn+5,+Dang+Kang,+Đắk+Lắk"
+              target="_blank"
+              rel="noopener"
+            >
+              Thêm vào lịch
+            </a>
+
+            <!-- Nút Xác Nhận Tham Dự -->
+            <div class="rsvp-btn-wrap">
+              <button type="button" class="btn-rsvp-primary" id="open-rsvp-btn">
+                XÁC NHẬN THAM DỰ
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 5: TIỆC CƯỚI SẼ TỔ CHỨC TẠI ================= -->
+        <section class="location-section">
+          <div class="section-banner-header">
+            <h2>TIỆC CƯỚI SẼ TỔ CHỨC TẠI</h2>
+          </div>
+
+          <div class="location-body">
+            <p class="venue-address-text">
+              Trường Tiểu học Hòa Tân, Thôn 5, Dang Kang, Đắk Lắk
+            </p>
+
+            <div class="map-frame-box">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1947.292454192017!2d108.29272551793287!3d12.543634745783777!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3171ed00417af9df%3A0x487505d7322f27f3!2zVHLGsOG7nW5nIFRp4buDdSBI4buNYyBWw6AgVEhDUyBIb8OgIFTDom4gKMSQaeG7g20gTOG6uyBUaMO0biA1KQ!5e0!3m2!1sen!2s!4v1794711097371!5m2!1sen!2s"
+                width="600"
+                height="450"
+                style="border: 0"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                title="Bản đồ tổ chức địa điểm cưới"
+              ></iframe>
+            </div>
+
+            <a
+              class="directions-link"
+              href="https://maps.app.goo.gl/kxjk4uzroQTTb1SZ7"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+              </svg>
+              <span>Chỉ đường</span>
+            </a>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 6: LỊCH TRÌNH NGÀY CƯỚI ================= -->
+        <section class="schedule-section" id="schedule-section">
+          <h2 class="schedule-title">LỊCH TRÌNH NGÀY CƯỚI</h2>
+
+          <div class="timeline-list" id="wedding-timeline">
+            <!-- Mốc 1: 10:20 - Đón khách -->
+            <div class="timeline-item">
+              <div class="timeline-left">
+                <span class="timeline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M5 21V11a7 7 0 0 1 14 0v10" />
+                    <path d="M3 21h18" />
+                    <path
+                      d="M12 12.2c-1.1-1.1-2.8-.9-3.4.4-.5 1.1.1 2.4 3.4 4.4 3.3-2 3.9-3.3 3.4-4.4-.6-1.3-2.3-1.5-3.4-.4z"
+                    />
+                  </svg>
+                </span>
+                <span class="timeline-time">10:20</span>
+              </div>
+
+              <div class="timeline-center">
+                <span class="timeline-dot"></span>
+                <span class="timeline-line"></span>
+              </div>
+
+              <div class="timeline-right">
+                <span class="timeline-activity">Đón khách</span>
+              </div>
+            </div>
+
+            <!-- Mốc 2: 10:30 - Khai tiệc -->
+            <div class="timeline-item">
+              <div class="timeline-left">
+                <span class="timeline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="9.5" cy="14" r="5" />
+                    <circle cx="14.5" cy="14" r="5" />
+                    <path d="M12 4l1.5 2-1.5 2-1.5-2z" />
+                  </svg>
+                </span>
+                <span class="timeline-time">10:30</span>
+              </div>
+
+              <div class="timeline-center">
+                <span class="timeline-dot"></span>
+                <span class="timeline-line"></span>
+              </div>
+
+              <div class="timeline-right">
+                <span class="timeline-activity">Khai tiệc</span>
+              </div>
+            </div>
+
+            <!-- Mốc 3: 10:45 - Nghi thức cưới -->
+            <div class="timeline-item">
+              <div class="timeline-left">
+                <span class="timeline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M7 3h4l-.7 6.2a2.3 2.3 0 0 1-4.6 0L5 3h2z" />
+                    <path d="M8 11.5V19" />
+                    <path d="M5.5 19h5" />
+                    <path d="M15 4h4l-.7 6.2a2.3 2.3 0 0 1-4.6 0L13 4h2z" />
+                    <path d="M16 12.5V20" />
+                    <path d="M13.5 20h5" />
+                  </svg>
+                </span>
+                <span class="timeline-time">10:45</span>
+              </div>
+
+              <div class="timeline-center">
+                <span class="timeline-dot"></span>
+                <span class="timeline-line"></span>
+              </div>
+
+              <div class="timeline-right">
+                <span class="timeline-activity">Nghi thức cưới</span>
+              </div>
+            </div>
+
+            <!-- Mốc 4: 11:00 - Cắt bánh nâng ly -->
+            <div class="timeline-item">
+              <div class="timeline-left">
+                <span class="timeline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 16a8 8 0 0 1 16 0" />
+                    <path d="M2 16h20" />
+                    <path d="M12 5v3" />
+                    <path d="M10 5h4" />
+                    <path d="M5 19h14" />
+                  </svg>
+                </span>
+                <span class="timeline-time">11:00</span>
+              </div>
+
+              <div class="timeline-center">
+                <span class="timeline-dot"></span>
+                <span class="timeline-line"></span>
+              </div>
+
+              <div class="timeline-right">
+                <span class="timeline-activity">Cắt bánh nâng ly</span>
+              </div>
+            </div>
+
+            <!-- Mốc 5: 13:00 - Kết thúc tiệc -->
+            <div class="timeline-item">
+              <div class="timeline-left">
+                <span class="timeline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+                    <path
+                      d="M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M18.4 5.6l-2.2 2.2M7.8 16.2l-2.2 2.2"
+                    />
+                    <circle cx="12" cy="12" r="2" />
+                  </svg>
+                </span>
+                <span class="timeline-time">13:00</span>
+              </div>
+
+              <div class="timeline-center">
+                <span class="timeline-dot"></span>
+              </div>
+
+              <div class="timeline-right">
+                <span class="timeline-activity">Kết thúc tiệc</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 7: LỜI ĐÓN TIẾP CUỐI TRANG ================= -->
+        <footer class="closing-section" id="closing-section">
+          <div class="closing-ornament" aria-hidden="true">
+            <span class="ornament-line"></span>
+            <span class="ornament-symbol">❦</span>
+            <span class="ornament-line"></span>
+          </div>
+
+          <p class="closing-greeting">
+            Rất hân hạnh được đón tiếp
+            <strong class="guest-name-highlight guest-name-sync"
+              >Quý Khách</strong
+            >
+            !
+          </p>
+
+          <div class="closing-signature">
+            <span class="sig-left">Chung</span>
+            <span class="sig-amp">&amp;</span>
+            <span class="sig-right">Diệp</span>
+          </div>
+        </footer>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
