@@ -344,6 +344,69 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadGuestNameById();
+  // ================= XỬ LÝ NÚT XÁC NHẬN THAM DỰ (GỬI VỀ GOOGLE SHEET) =================
+  const RSVP_WEB_APP_URL =
+    "https://script.google.com/macros/s/AKfycbxt4nbbIbfmvNoEX5TObCUbPY18KR09ngWkSqHVbLwTUWi5mxosBq0vzxr_fFWUkZhDNA/exec";
+  const rsvpBtn = document.getElementById("open-rsvp-btn");
+
+  if (rsvpBtn) {
+    // Kiểm tra nếu khách này đã bấm xác nhận trước đó trên trình duyệt
+    if (
+      guestId &&
+      localStorage.getItem(`rsvp_confirmed_${guestId}`) === "true"
+    ) {
+      rsvpBtn.textContent = "✓ ĐÃ XÁC NHẬN THAM DỰ";
+      rsvpBtn.classList.add("is-confirmed");
+    }
+
+    rsvpBtn.addEventListener("click", async (e) => {
+      if (!guestId) {
+        alert(
+          "Link thiệp chưa có mã khách mời (?id=...). Vui lòng mở đúng link thiệp được gửi riêng cho bạn!",
+        );
+        return;
+      }
+
+      if (rsvpBtn.disabled || rsvpBtn.classList.contains("is-confirmed"))
+        return;
+
+      // Hiệu ứng đang gửi
+      const originalText = rsvpBtn.textContent;
+      rsvpBtn.disabled = true;
+      rsvpBtn.textContent = "ĐANG GỬI XÁC NHẬN...";
+
+      try {
+        const response = await fetch(RSVP_WEB_APP_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8",
+          },
+          body: JSON.stringify({ id: guestId }),
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+          rsvpBtn.textContent = "✓ ĐÃ XÁC NHẬN THAM DỰ";
+          rsvpBtn.classList.add("is-confirmed");
+          localStorage.setItem(`rsvp_confirmed_${guestId}`, "true");
+
+          // Bắn pháo bông chữ Hỷ chúc mừng ngay tại nút
+          const rect = rsvpBtn.getBoundingClientRect();
+          launchHyFireworks(rect.left + rect.width / 2, rect.top, 30);
+        } else {
+          throw new Error(result.message || "Lỗi xác nhận");
+        }
+      } catch (error) {
+        console.error("Lỗi xác nhận tham dự:", error);
+        rsvpBtn.disabled = false;
+        rsvpBtn.textContent = originalText;
+        alert(
+          "Kết nối hơi chập chờn, bạn vui lòng bấm xác nhận lại giúp gia đình nhé!",
+        );
+      }
+    });
+  }
 
   // ================= 7. CẬP NHẬT LINK GOOGLE CALENDAR =================
   const calendarBtn = document.getElementById("googleCalendarBtn");

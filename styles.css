@@ -1661,3 +1661,11 @@ html, body {
         height: 42px;
     }
 }
+/* Trạng thái nút sau khi khách đã bấm xác nhận thành công */
+.btn-rsvp-primary.is-confirmed {
+    background-color: #2e6f40;
+    border-color: #c3a370;
+    color: #ffffff;
+    cursor: default;
+    box-shadow: 0 4px 12px rgba(46, 111, 64, 0.25);
+}
