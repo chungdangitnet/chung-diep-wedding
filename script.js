@@ -424,7 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "Tiệc Cưới Ngọc Chung & Kiều Diệp",
       startDate: "20270503T033000Z",
       endDate: "20270503T060000Z",
-      location: "Trường Tiểu Học Hòa Tân, Thôn 5, Dang Kang, Đắk Lắk",
+      location: "Trường Tiểu Học & THCS Hòa Tân, Thôn 5, Dang Kang, Đắk Lắk",
       details: "Sự hiện diện của bạn là niềm vinh hạnh của gia đình chúng tôi!",
     };
 
